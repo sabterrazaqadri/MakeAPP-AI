@@ -17,7 +17,7 @@ Do not include <html>, <head>, or <body> tags.
 Only return the JSX code for the component function.
 `;
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   try {
     const result = await model.generateContent([systemPrompt, prompt]);
