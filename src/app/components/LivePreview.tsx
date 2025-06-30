@@ -1,27 +1,42 @@
 "use client";
 
-import { Sandpack } from "@codesandbox/sandpack-react";
+import {
+  SandpackProvider,
+  SandpackLayout,
+  SandpackPreview,
+} from "@codesandbox/sandpack-react";
 
 interface LivePreviewProps {
   code: string;
 }
 
+function wrapCode(code: string): string {
+  if (code.includes("export default")) return code;
+  if (code.includes("function App(") || code.includes("const App")) {
+    return `${code}\n\nexport default App;`;
+  }
+  return `function App() {\n${code}\n}\n\nexport default App;`;
+}
+
 export default function LivePreview({ code }: LivePreviewProps) {
+  if (!code) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center bg-white/5 rounded-xl border border-white/10">
+        <p className="text-white/50">No code to preview</p>
+      </div>
+    );
+  }
+
+  const finalCode = wrapCode(code);
+
   return (
-    <div className="mt-6 mb-6 border rounded-lg shadow overflow-hidden">
-      <Sandpack
+    <div className="w-full h-full  ">
+      <SandpackProvider
         template="react"
-        theme="light"
-        options={{
-          showTabs: true,
-          wrapContent: true,
-          editorHeight: 550,
-          editorWidthPercentage: 0,
-          autorun: true,
-        }}
         files={{
-          "/App.js": code,
-          "/index.js": `
+          "/App.js": { code: finalCode },
+          "/index.js": {
+            code: `
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -30,11 +45,27 @@ import "./index.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
           `,
-          "/index.css": `
+          },
+          "/index.css": {
+            code: `
 @import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");
+body { margin: 0; padding: 0; height: 100vh; }
+#root { height: 100vh; }
           `,
+          },
         }}
-      />
+        customSetup={{
+          dependencies: {
+            react: "latest",
+            "react-dom": "latest",
+            "lucide-react": "latest",
+          },
+        }}
+      >
+        <SandpackLayout className="h-full">
+          <SandpackPreview className="h-full" showOpenInCodeSandbox={false} />
+        </SandpackLayout>
+      </SandpackProvider>
     </div>
   );
 }
