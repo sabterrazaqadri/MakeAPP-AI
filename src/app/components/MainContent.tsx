@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import InputForm from "./InputForm";
 import ProjectHistory from "./ProjectHistory";
+import ReactDOM from "react-dom";
 
 export default function MainContent() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function MainContent() {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   // Load current code from sessionStorage
   useEffect(() => {
@@ -78,6 +81,18 @@ export default function MainContent() {
 
   const handleShare = (projectId: string) => {
     console.log(`Share project: ${projectId}`);
+  };
+
+  const deleteProject = async () => {
+    if (!projectToDelete) return;
+    try {
+      await fetch(`/api/projects/${projectToDelete}`, { method: "DELETE" });
+      setShowDeleteDialog(false);
+      setProjectToDelete(null);
+      // Optionally refresh project list here
+    } catch (error) {
+      console.error("Failed to delete project", error);
+    }
   };
 
   const categories = [
@@ -358,27 +373,30 @@ export default function MainContent() {
                 ))}
               </div>
             ) : (
-              <div className="p-4">
-        <ProjectHistory 
-                  currentCode={currentCode}
-          onLoadProject={handleLoadProject}
-                  searchQuery={searchQuery}
-                  sortBy={sortBy}
-                  filterStatus={filterStatus}
-                  selectedCategory={selectedCategory}
-                  showFavorites={showFavorites}
-                  bulkMode={bulkMode}
-                  selectedProjects={selectedProjects}
-                  onBulkSelect={(projectId) => {
-                    setSelectedProjects(prev => 
-                      prev.includes(projectId) 
-                        ? prev.filter(id => id !== projectId)
-                        : [...prev, projectId]
-                    );
-                  }}
-                  onBulkMode={() => setBulkMode(true)}
-                />
-              </div>
+              <ProjectHistory 
+                currentCode={currentCode}
+                onLoadProject={handleLoadProject}
+                searchQuery={searchQuery}
+                sortBy={sortBy}
+                filterStatus={filterStatus}
+                selectedCategory={selectedCategory}
+                showFavorites={showFavorites}
+                bulkMode={bulkMode}
+                selectedProjects={selectedProjects}
+                onBulkSelect={(projectId) => {
+                  setSelectedProjects(prev => 
+                    prev.includes(projectId) 
+                      ? prev.filter(id => id !== projectId)
+                      : [...prev, projectId]
+                  );
+                }}
+                onBulkMode={() => setBulkMode(true)}
+                showDeleteDialog={showDeleteDialog}
+                setShowDeleteDialog={setShowDeleteDialog}
+                projectToDelete={projectToDelete}
+                setProjectToDelete={setProjectToDelete}
+                deleteProject={deleteProject}
+              />
             )}
           </div>
 
@@ -658,6 +676,11 @@ export default function MainContent() {
                   );
                 }}
                 onBulkMode={() => setBulkMode(true)}
+                showDeleteDialog={showDeleteDialog}
+                setShowDeleteDialog={setShowDeleteDialog}
+                projectToDelete={projectToDelete}
+                setProjectToDelete={setProjectToDelete}
+                deleteProject={deleteProject}
               />
             )}
           </div>
@@ -674,6 +697,32 @@ export default function MainContent() {
           </div>
         </div>
       </div>
+      {/* Modal for delete warning */}
+      {showDeleteDialog && typeof window !== "undefined" && typeof document !== "undefined" && document.body
+        ? ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60">
+              <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full text-center">
+                <h2 className="text-lg font-bold mb-4 text-gray-900">Delete Project?</h2>
+                <p className="mb-6 text-gray-700">Are you sure you want to delete this project? This action cannot be undone.</p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                    onClick={deleteProject}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                    onClick={() => setShowDeleteDialog(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 } 
