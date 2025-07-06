@@ -1,16 +1,28 @@
 import Link from "next/link";
-import InputForm from "./components/InputForm";
+import UserAuth from "./components/UserAuth";
+import MainContent from "./components/MainContent";
 import { Sparkles, Zap, Code, Download, Eye, Copy, ArrowRight, Star, Users, Clock } from "lucide-react";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen ">
+      {/* Header with Auth */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold text-white">
+            MakeApp AI
+          </Link>
+          <UserAuth  />
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="hero-section relative ">
+      <section className="hero-section relative pt-10">
         {/* Background Effects */}
         <div className="bg-pattern "></div>
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-purple-900/20 to-pink-900/20"></div>
       
+        <div className="container mx-auto px-6 py-16">
           <div className="flex flex-col z-10 items-center h-auto">
             {/* Badge */}
             <div className="inline-flex items-center  justify-center gap-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full !px-4 !py-2 !mb-8 !mt-2">
@@ -31,13 +43,11 @@ export default function HomePage() {
               Powered by advanced AI, built with React & Tailwind CSS.
             </p>
 
-            {/* CTA Section */}
-            <div className="">
-              <InputForm />
-            </div>
+            {/* Main Content Grid */}
+            <MainContent />
 
             {/* Stats */}
-            <div className="grid !mb-2 z-10 grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+            <div className="grid !mb-2 z-10 grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto mt-16">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white !mb-2">10K+</div>
                 <div className="text-white/60 text-base">Apps Generated</div>
@@ -52,6 +62,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </div>
       </section>
 
       {/* Features Section */}

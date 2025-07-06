@@ -25,8 +25,11 @@ export default function InputForm() {
         return;
       }
 
-      const { code } = await res.json();
+      const { code, projectStructure } = await res.json();
       sessionStorage.setItem("generatedCode", code);
+      if (projectStructure) {
+        sessionStorage.setItem("generatedProjectStructure", JSON.stringify(projectStructure));
+      }
       router.push("/output");
     } catch (err) {
       alert("Error generating code.");
