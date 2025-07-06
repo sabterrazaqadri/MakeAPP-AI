@@ -56,6 +56,11 @@ interface ProjectHistoryProps {
   selectedProjects?: string[];
   onBulkSelect?: (projectId: string) => void;
   onBulkMode?: () => void;
+  showDeleteDialog: boolean;
+  setShowDeleteDialog: (show: boolean) => void;
+  projectToDelete: string | null;
+  setProjectToDelete: (id: string | null) => void;
+  deleteProject: () => void;
 }
 
 export default function ProjectHistory({ 
@@ -69,14 +74,17 @@ export default function ProjectHistory({
   bulkMode = false,
   selectedProjects = [],
   onBulkSelect,
-  onBulkMode
+  onBulkMode,
+  showDeleteDialog,
+  setShowDeleteDialog,
+  projectToDelete,
+  setProjectToDelete,
+  deleteProject
 }: ProjectHistoryProps) {
   const { isSignedIn } = useUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (isSignedIn) {
@@ -111,31 +119,6 @@ export default function ProjectHistory({
       }
     } catch (error) {
       console.error("Error loading templates:", error);
-    }
-  };
-
-  const handleDeleteClick = (id: string) => {
-    setProjectToDelete(id);
-    setShowDeleteDialog(true);
-  };
-
-  const deleteProject = async () => {
-    if (!projectToDelete) return;
-
-    try {
-      const response = await fetch(`/api/projects/${projectToDelete}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setProjects(prev => prev.filter(p => p._id !== projectToDelete));
-        setShowDeleteDialog(false);
-        setProjectToDelete(null);
-      } else {
-        console.error("Failed to delete project");
-      }
-    } catch (error) {
-      console.error("Error deleting project:", error);
     }
   };
 
@@ -459,7 +442,7 @@ export default function ProjectHistory({
                       Share
                     </button>
                     <button
-                      onClick={() => handleDeleteClick(project._id)}
+                      onClick={() => { setProjectToDelete(project._id); setShowDeleteDialog(true); }}
                       className="flex items-center gap-1 text-red-400 hover:text-red-300  py-1 hover:bg-red-500/10 rounded-md transition-all duration-200 text-xs font-medium"
                       title="Delete project"
                     >
@@ -473,40 +456,6 @@ export default function ProjectHistory({
           )}
         </div>
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      {showDeleteDialog && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gray-900/95 border border-white/20 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Trash2 className="w-8 h-8 text-red-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Delete Project</h3>
-              <p className="text-white/70 text-sm mb-8 leading-relaxed">
-                Are you sure you want to delete this project? This action cannot be undone and all project data will be permanently removed.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={deleteProject}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200"
-                >
-                  Delete Project
-                </button>
-                <button
-                  onClick={() => {
-                    setShowDeleteDialog(false);
-                    setProjectToDelete(null);
-                  }}
-                  className="flex-1 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 } 

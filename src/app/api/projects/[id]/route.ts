@@ -1,15 +1,20 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { client } from "../../../../lib/sanity";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
   const { userId } = await auth();
   
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Extract id from URL pathname
+  const pathname = req.nextUrl.pathname;
+  const id = pathname.split('/').pop();
+
+  if (!id) {
+    return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
   }
 
   try {
@@ -18,7 +23,7 @@ export async function PUT(
     // Verify the project belongs to the user
     const existingProject = await client.fetch(`
       *[_type == "project" && _id == $id && userId == $userId][0]
-    `, { id: params.id, userId });
+    `, { id, userId });
 
     if (!existingProject) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -34,7 +39,7 @@ export async function PUT(
     };
 
     const result = await client
-      .patch(params.id)
+      .patch(id)
       .set(updatedProject)
       .commit();
     
@@ -45,27 +50,32 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest) {
   const { userId } = await auth();
   
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Extract id from URL pathname
+  const pathname = req.nextUrl.pathname;
+  const id = pathname.split('/').pop();
+
+  if (!id) {
+    return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+  }
+
   try {
     // Verify the project belongs to the user
     const existingProject = await client.fetch(`
       *[_type == "project" && _id == $id && userId == $userId][0]
-    `, { id: params.id, userId });
+    `, { id, userId });
 
     if (!existingProject) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    await client.delete(params.id);
+    await client.delete(id);
     
     return NextResponse.json({ message: "Project deleted successfully" });
   } catch (error) {
@@ -74,14 +84,19 @@ export async function DELETE(
   }
 } 
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest) {
   const { userId } = await auth();
   
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Extract id from URL pathname
+  const pathname = req.nextUrl.pathname;
+  const id = pathname.split('/').pop();
+
+  if (!id) {
+    return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
   }
 
   try {
@@ -89,7 +104,7 @@ export async function PATCH(
     
     // Update the project
     const result = await client
-      .patch(params.id)
+      .patch(id)
       .set(updates)
       .commit();
 
