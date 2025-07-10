@@ -23,6 +23,7 @@ import LivePreview from "@/app/components/LivePreview";
 import AgentChat from "@/app/components/AgentChat";
 import DeployToVercelButton from "@/app/components/DeployToVercelButton";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const MonacoEditor = dynamic(() => import("@/app/components/CodeEditor"), {
   ssr: false,
@@ -30,6 +31,7 @@ const MonacoEditor = dynamic(() => import("@/app/components/CodeEditor"), {
 
 export default function OutputPage() {
   const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
@@ -254,7 +256,7 @@ export default function OutputPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black/20 backdrop-blur-sm">
+    <main className="min-h-screen bg-black/20 backdrop-blur-sm flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-50 glass border-b border-white/10">
         <div className="container !py-4">
@@ -321,7 +323,7 @@ export default function OutputPage() {
         </div>
       </div>
 
-      <div className={`container !py-8 transition-all duration-300 ${isAgentOpen ? '!pr-4' : ''}`}>
+      <div className={`container flex-1 flex flex-col !py-8 transition-all duration-300 ${isAgentOpen ? '!pr-4' : ''}`} style={{minHeight:0}}>
         {/* Success Message */}
         <div className="mb-8">
           <div className="form-card border-green-500/20">
@@ -388,9 +390,9 @@ export default function OutputPage() {
         </div>
 
         {/* Content with Side Panel */}
-        <div className="flex gap-6">
+        <div className="flex gap-6 flex-1 min-h-0">
           {/* Main Content */}
-          <div className={`feature-card overflow-hidden transition-all duration-300 ${isAgentOpen ? 'flex-1' : 'w-full'} relative`}>
+          <div className={`feature-card overflow-hidden transition-all duration-300 ${isAgentOpen ? 'flex-1' : 'w-full'} relative flex flex-col min-h-0`}>
             {isAgentProcessing && (
               <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-indigo-500 to-purple-600 text-white !px-3 !py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg">
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -398,7 +400,7 @@ export default function OutputPage() {
               </div>
             )}
             {activeTab === "preview" ? (
-              <div>
+              <div className="flex flex-col flex-1 min-h-0">
                 <div className="!p-4 border-b border-white/10 bg-white/5">
                   <div className="flex items-center gap-2 text-white/80 text-sm">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -407,7 +409,7 @@ export default function OutputPage() {
                     <span className="!ml-2">Live Preview</span>
                   </div>
                 </div>
-                <div className="w-full h-[600px]">
+                <div className="w-full flex-1 min-h-[400px]">
                   <LivePreview code={getMainComponentCode()} />
                 </div>
                 {/* Deploy to Vercel Button */}
@@ -492,7 +494,10 @@ export default function OutputPage() {
                 <p className="text-white/70 text-sm !mb-4 leading-relaxed">
                   Deploy to Vercel, Netlify, or any hosting platform
                 </p>
-                <button className="text-indigo-400 hover:text-indigo-300 text-sm font-medium">
+                <button 
+                  className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                  onClick={() => router.push("/deploy-guide")}
+                >
                   Deploy guide →
                 </button>
               </div>

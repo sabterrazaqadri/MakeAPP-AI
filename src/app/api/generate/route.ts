@@ -31,7 +31,13 @@ IMPORTANT:
   - "app/page.tsx" (Next.js 13+ app router page)
   - "app/layout.tsx" (root layout with CSS imports)
 
+ADDITIONAL INSTRUCTIONS:
+- The navbar MUST be fixed (not sticky or transparent), and always stay on top of all layers (z-50 or above). It must not allow background content to overlap.
+- Ensure all text has enough contrast with its background: for example, avoid white text on white backgrounds or black text on black cards.
+- Use Tailwind utility classes to enforce proper foreground/background contrast (e.g., 'bg-white text-black', '/bg-black text-white', etc.) across all components.
+
 Create a unique, custom application that matches the user's prompt exactly. Do NOT use generic templates or placeholder content.
+
 `;
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

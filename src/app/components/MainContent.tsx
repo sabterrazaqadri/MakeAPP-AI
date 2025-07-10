@@ -149,6 +149,7 @@ export default function MainContent() {
         >
           {isSidebarOpen ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
+        {isSidebarOpen ? <button className="transition-all duration-300 mr-[368px]" /> : <button className="transition-all duration-300 mr-0" />}
       </div>
       
       {/* Desktop Sidebar */}
@@ -439,8 +440,18 @@ export default function MainContent() {
         <div className={`absolute bottom-0 left-0 right-0 bg-black/95 backdrop-blur-sm border-t border-white/10 rounded-t-3xl transition-transform duration-300 ${
           isSidebarOpen ? 'translate-y-0' : 'translate-y-full'
         }`}>
+          {/* Back Button */}
+          <div className="flex items-center px-4 pt-6 pb-2">
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 text-sm font-medium"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back
+            </button>
+          </div>
           {/* Drawer Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <div className="flex items-center justify-between p-4 border-b border-white/10 mt-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Clock className="w-4 h-4 text-white" />
@@ -623,7 +634,7 @@ export default function MainContent() {
           </div>
           
           {/* Drawer Content */}
-          <div className="h-[50vh] overflow-y-auto p-4">
+          <div className="h-[50vh] overflow-y-auto p-4 mt-8">
             {showTemplates ? (
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-white mb-3">Templates</h4>

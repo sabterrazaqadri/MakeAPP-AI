@@ -17,34 +17,17 @@ export default function DeployToVercelButton({ projectStructure, projectName }: 
     setDeploying(true);
     setError(null);
     setDeployedUrl(null);
-    
-    // Validate projectStructure
     if (!projectStructure || Object.keys(projectStructure).length === 0) {
       setError("No project structure available. Please regenerate your app.");
       setDeploying(false);
       return;
     }
-    
     try {
-      console.log("Deploying project with", Object.keys(projectStructure).length, "files");
       const res = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectStructure, projectName }),
       });
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Deploy API error:", errorText);
-        try {
-          const errorData = JSON.parse(errorText);
-          setError(errorData.error || `Deployment failed (${res.status})`);
-        } catch {
-          setError(`Deployment failed (${res.status}): ${errorText}`);
-        }
-        return;
-      }
-      
       const data = await res.json();
       if (data.url) {
         setDeployedUrl(data.url);
@@ -52,7 +35,6 @@ export default function DeployToVercelButton({ projectStructure, projectName }: 
         setError(data.error || "Deployment failed - no URL returned");
       }
     } catch (err: any) {
-      console.error("Deploy error:", err);
       setError(err.message || "Network error during deployment");
     } finally {
       setDeploying(false);

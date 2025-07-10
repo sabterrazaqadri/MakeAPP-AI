@@ -30,7 +30,7 @@ export default function LivePreview({ code }: LivePreviewProps) {
   const finalCode = wrapCode(code);
 
   return (
-    <div className="w-full h-full  ">
+    <div className="w-full h-full min-h-0">
       <SandpackProvider
         template="react"
         files={{
@@ -62,8 +62,8 @@ body { margin: 0; padding: 0; height: 100vh; }
           },
         }}
       >
-        <SandpackLayout className="h-full">
-          <SandpackPreview className="h-full" showOpenInCodeSandbox={false} />
+        <SandpackLayout className="h-full min-h-0 w-full">
+          <SandpackPreview className="h-full min-h-[600px] w-full" style={{height: '100%', minHeight: 600}} showOpenInCodeSandbox={false} />
         </SandpackLayout>
       </SandpackProvider>
     </div>

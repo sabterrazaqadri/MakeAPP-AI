@@ -4,11 +4,7 @@ const VERCEL_TOKEN = process.env.VERCEL_TOKEN!;
 
 export async function POST(req: NextRequest) {
   try {
-    if (!VERCEL_TOKEN) {
-      return NextResponse.json({ error: "Vercel token not configured" }, { status: 500 });
-    }
-
-    const { projectStructure, projectName } = await req.json();
+    const { projectStructure, projectName, vercelToken } = await req.json();
 
     if (!projectStructure || Object.keys(projectStructure).length === 0) {
       return NextResponse.json({ error: "Invalid project structure" }, { status: 400 });
@@ -45,10 +41,15 @@ export async function POST(req: NextRequest) {
       projectSettings: { framework: 'nextjs' },
     };
 
+    const tokenToUse = vercelToken || VERCEL_TOKEN;
+    if (!tokenToUse) {
+      return NextResponse.json({ error: "Vercel token not configured" }, { status: 500 });
+    }
+
     const res = await fetch('https://api.vercel.com/v13/deployments', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${VERCEL_TOKEN}`,
+        Authorization: `Bearer ${tokenToUse}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
